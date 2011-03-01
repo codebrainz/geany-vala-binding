@@ -53,7 +53,7 @@ private int remove_duplicated_lines (Document? doc)
 {
 	int n_repl = 0;
 	
-	if (doc.is_valid ()) {
+	if (doc.valid) {
 		var sci = doc.editor.sci;
 		
 		sci.start_undo_action ();
@@ -69,7 +69,7 @@ private int remove_duplicated_lines (Document? doc)
 		}
 		sci.end_undo_action ();
 		
-		Msgwin.status_add ("%s: removed %d doubles.", doc.get_filename (), n_repl);
+		MessageWindow.status_add ("%s: removed %d doubles.", doc.get_filename (), n_repl);
 	}
 	
 	return n_repl;
