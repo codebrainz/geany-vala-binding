@@ -509,7 +509,7 @@ namespace Geany {
 		public FiletypeGroupID			group;
 		public Gdk.Pixbuf?				icon;
 		public FiletypeID				id;
-		public TagManager.langType		lang;
+		public TagManager.LangType		lang;
 		public Filetype					lexer_filetype;
 		public string?					mime_type;
 		public string					name;
@@ -1019,24 +1019,217 @@ namespace Geany {
 	namespace Templates {
 		public string	get_template_fileheader (int filetype_idx, string fname);
 	}
-	[CCode (cprefix = "tm_")]
+	/* reviewed */
+	[CCode (cprefix = "TM", lower_case_cprefix = "tm_")]
 	namespace TagManager {
-		[CCode (cname = "TMWorkObject")]
-		public struct WorkObject {
+		/* TODO: add TMFileEntry? not sure it's useful */
+		[Compact]
+		[CCode (free_function = "tm_work_object_free")]
+		public class WorkObject {
+			public uint				type;
+			public string			file_name;
+			public string			short_name;
+			public WorkObject?		parent;
+			public time_t			analyze_time;
+			public GLib.PtrArray	tags_array;
 		}
-		public struct Workspace {
+		[Compact]
+		public class Workspace : WorkObject {
+			public GLib.PtrArray	global_tags;
+			public GLib.PtrArray	work_objects;
+			
+			public static bool		add_object (WorkObject work_object);
+			public static bool		remove_object (WorkObject w, bool do_free, bool update);
+		}
+		[Compact]
+		public class SourceFile : WorkObject {
+			/** Programming language used */
+			public LangType		lang;
+			/** Whether this file should be scanned for tags */
+			public bool			inactive;
+			
+			/* Methods */
+			
+			public SourceFile (string? file_name, bool update, string? name = null);
+			public bool			update (bool force = true, bool recurse = true, bool update_parent = true);
+		}
+		[Compact]
+		public class Project : WorkObject {
+			/** Top project directory */
+			public string			dir;
+			/** Extensions for source files (wildcards, NULL terminated) */
+			[CCode (array_length = false, array_null_terminated = true)]
+			public string[]			sources;
+			/** File patters to ignore */
+			[CCode (array_length = false, array_null_terminated = true)]
+			public string[]			ignore;
+			/** Array of TMSourceFile present in the project */
+			public GLib.PtrArray	file_list;
 		}
 		[SimpleType]
 		[IntegerType]
-		public struct langType : int {
+		[CCode (cname = "langType")]
+		public struct LangType : int {
+		}
+		[Flags]
+		[CCode (has_type_id = false)]
+		public enum TagType {
+			[CCode (cname = "tm_tag_undef_t")]
+			UNDEF,
+			[CCode (cname = "tm_tag_class_t")]
+			CLASS,
+			[CCode (cname = "tm_tag_enum_t")]
+			ENUM,
+			[CCode (cname = "tm_tag_enumerator_t")]
+			ENUMERATOR,
+			[CCode (cname = "tm_tag_field_t")]
+			FIELD,
+			[CCode (cname = "tm_tag_function_t")]
+			FUNCTION,
+			[CCode (cname = "tm_tag_interface_t")]
+			INTERFACE,
+			[CCode (cname = "tm_tag_member_t")]
+			MEMBER,
+			[CCode (cname = "tm_tag_method_t")]
+			METHOD,
+			[CCode (cname = "tm_tag_namespace_t")]
+			NAMESPACE,
+			[CCode (cname = "tm_tag_package_t")]
+			PACKAGE,
+			[CCode (cname = "tm_tag_prototype_t")]
+			PROTOTYPE,
+			[CCode (cname = "tm_tag_struct_t")]
+			STRUCT,
+			[CCode (cname = "tm_tag_typedef_t")]
+			TYPEDEF,
+			[CCode (cname = "tm_tag_union_t")]
+			UNION,
+			[CCode (cname = "tm_tag_variable_t")]
+			VARIABLE,
+			[CCode (cname = "tm_tag_externvar_t")]
+			EXTERNVAR,
+			[CCode (cname = "tm_tag_macro_t")]
+			MACRO,
+			[CCode (cname = "tm_tag_macro_with_arg_t")]
+			MACRO_WITH_ARG,
+			[CCode (cname = "tm_tag_file_t")]
+			FILE,
+			[CCode (cname = "tm_tag_other_t")]
+			OTHER,
+			[CCode (cname = "tm_tag_max_t")]
+			MAX
+		}
+		[Flags]
+		[CCode (has_type_id = false)]
+		public enum TagAttrType {
+			[CCode (cname = "tm_tag_attr_none_t")]
+			NONE,
+			[CCode (cname = "tm_tag_attr_name_t")]
+			NAME,
+			[CCode (cname = "tm_tag_attr_type_t")]
+			TYPE,
+			[CCode (cname = "tm_tag_attr_file_t")]
+			FILE,
+			[CCode (cname = "tm_tag_attr_line_t")]
+			LINE,
+			[CCode (cname = "tm_tag_attr_pos_t")]
+			POS,
+			[CCode (cname = "tm_tag_attr_scope_t")]
+			SCOPE,
+			[CCode (cname = "tm_tag_attr_inheritance_t")]
+			INHERITANCE,
+			[CCode (cname = "tm_tag_attr_arglist_t")]
+			ARGLIST,
+			[CCode (cname = "tm_tag_attr_local_t")]
+			LOCAL,
+			[CCode (cname = "tm_tag_attr_time_t")]
+			TIME,
+			[CCode (cname = "tm_tag_attr_vartype_t")]
+			VARTYPE,
+			[CCode (cname = "tm_tag_attr_access_t")]
+			ACCESS,
+			[CCode (cname = "tm_tag_attr_impl_t")]
+			IMPL,
+			[CCode (cname = "tm_tag_attr_lang_t")]
+			LANG,
+			[CCode (cname = "tm_tag_attr_inactive_t")]
+			INACTIVE,
+			[CCode (cname = "tm_tag_attr_pointer_t")]
+			POINTER,
+			[CCode (cname = "tm_tag_attr_max_t")]
+			MAX
+		}
+		[CCode (cprefix = "TAG_ACCESS_")]
+		namespace TagAccess {
+			char PUBLIC; /*!< Public member */
+			char PROTECTED; /*!< Protected member */
+			char PRIVATE; /*!< Private member */
+			char FRIEND; /*!< Friend members/functions */
+			char DEFAULT; /*!< Default access (Java) */
+			char UNKNOWN; /*!< Unknown access type */
+		}
+		[CCode (cprefix = "TAG_IMPL_")]
+		namespace TagImplementation {
+			char VIRTUAL; /*!< Virtual implementation */
+			char UNKNOWN; /*!< Unknown implementation */
+		}
+		/* this is a dummy proxy structure because Vala doesn't support inline anonymous structs */
+		[CCode (cname = "__GeanyValaPluginTMTagAttributesEntry")]
+		public struct TagAttributesEntry {
+			public SourceFile	file;
+			public ulong		line;
+			public bool			local;
+			[CCode (cname = "pointerOrder")]
+			public uint			pointer_order;
+			public string?		arglist;
+			public string?		scope;
+			public string?		inheritance;
+			public string?		var_type;
+			public char			access;
+			public char			impl;
+		}
+		/* this is a dummy proxy structure because Vala doesn't support inline anonymous structs */
+		[CCode (cname = "__GeanyValaPluginTMTagAttributesFile")]
+		public struct TagAttributesFile {
+			public time_t		timestamp;
+			public LangType		lang;
+			public bool			inactive;
+		}
+		/* this is a dummy proxy structure because Vala doesn't support inline anonymous structs */
+		[CCode (cname = "__GeanyValaPluginTMTagAttributes")]
+		public struct TagAttributes {
+			public TagAttributesEntry	entry;
+			public TagAttributesFile	file;
+		}
+		[Compact]
+		[CCode (cname = "TMTag", cprefix = "tm_tag_")]
+		public class Tag {
+			/** tag name */
+			public string			name;
+			/** tag type */
+			public TagType			type;
+			/** tag attributes */
+			public TagAttributes	atts;
+		}
+		/* this is a dummy proxy structure because Vala doesn't support inline anonymous structs */
+		[CCode (cname = "__GeanyValaPluginTMSymbolInfo")]
+		public struct SymbolInfo {
+			/** Array of child symbols */
+			public GLib.PtrArray	children;
+			/** Prototype tag for functions */
+			public Tag				equiv;
+		}
+		[Compact]
+		[CCode (cname = "TMSymbol", cprefix = "tm_symbol_tree_" /*, free_function = "tm_symbol_tree_free"*/)]
+		public class Symbol {
+			/** The tag corresponding to this symbol */
+			public Tag			tag;
+			/** Parent class/struct for functions/variables */
+			public Symbol?		parent;
+			public SymbolInfo	info;
 		}
 		
 		public string		get_real_path (string file_name);
-		public WorkObject	source_file_new (string file_name, bool update, string name);
-		public bool			workspace_add_object (WorkObject work_object);
-		public bool			source_file_update (WorkObject source_file, bool force, bool recurse, bool update_parent);
-		public void			work_object_free (void *work_object);
-		public bool			workspace_remove_object (WorkObject w, bool do_free, bool update);
 	}
 	/* reviewed */
 	[CCode (cprefix = "ui_", lower_case_cprefix = "ui_")]
