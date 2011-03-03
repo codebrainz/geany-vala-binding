@@ -880,8 +880,12 @@ namespace Geany {
 		public string[]					pattern;
 		public string					title;
 		
+		public unowned string			display_name {
+			[CCode (cname = "filetypes_get_display_name")]
+			get;
+		}
+		
 		public static unowned Filetype	detect_from_file (string utf8_filename);
-		public unowned string			get_display_name ();
 		public static unowned Filetype?	index (int idx);
 		public static unowned Filetype?	lookup_by_name (string name);
 	}
