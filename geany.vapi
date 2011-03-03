@@ -21,7 +21,8 @@
 namespace Geany {
 	/* reviewed */
 	[Compact]
-	public class App {
+	[CCode (cname = "GeanyApp")]
+	public class Application {
 		public bool								debug_mode;
 		[CCode (cname = "configdir")]
 		public string							config_dir;
@@ -322,7 +323,7 @@ namespace Geany {
 	/* reviewed */
 	[Compact]
 	public class Data {
-		public App						app;
+		public Application				app;
 		public MainWidgets				main_widgets;
 		public GLib.PtrArray			documents_array;
 		public GLib.PtrArray			filetypes_array;
