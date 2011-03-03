@@ -253,51 +253,43 @@ namespace Geany {
 		/* Document Properties */
 
 		/**
-		 * Document:has_changed:
-		 * 
-		 * Gets whether the document has changed since it was last saved.  This
-		 * property is read-only.
+		 * Gets whether the document has changed since it was last saved.
 		 */
-		[CCode (cname = "changed")] bool _has_changed;
 		public bool has_changed {
 			[CCode (cname = "__geany_vala_plugin_document_get_has_changed")]
 			get { return _has_changed; }
 			[CCode (cname = "__geany_vala_plugin_document_set_has_changed")]
 			set { set_text_changed (value); }
 		}
+		[CCode (cname = "changed")] bool _has_changed;
 		
 		/**
-		 * Document:editor:
-		 * 
-		 * Gets the #Editor associated with the document.  This property is
-		 * read-only.
+		 * Gets the {@link Editor} associated with the document.
 		 */
-		[CCode (cname = "editor")] Editor _editor;
 		public Editor editor {
 			[CCode (cname = "__geany_vala_plugin_document_get_editor")]
 			get { return _editor; }
 		}
+		[CCode (cname = "editor")] Editor _editor;
 
 		/**
-		 * Document:encoding:
+		 * Gets/sets the encoding of the document. 
 		 * 
-		 * Gets/sets the encoding of the document.  This must be a valid
-		 * string representation of an encoding, which can be retrieved with
-		 * the #Encoding.get_charset_from_index() function.
+		 * This must be a valid string representation of an encoding, which
+		 * can be retrieved with the {@link Encoding.get_charset_from_index}
+		 * function.
 		 */
-		[CCode (cname = "encoding")] string _encoding;
 		public string encoding {
 			[CCode (cname = "__geany_vala_plugin_document_get_encoding")]
 			get { return _encoding; }
 			[CCode (cname = "__geany_vala_plugin_document_set_encoding")]
 			set { set_encoding (value); }
 		}
+		[CCode (cname = "encoding")] string _encoding;
 		
 		/**
-		 * Document:safe_file_name:
-		 * 
 		 * Gets the document's file name or a string representing an unsaved
-		 * document, for example 'untitled'.  This property is read-only.
+		 * document, for example 'untitled'.
 		 */
 		/* FIXME: I'm not really sure of the name of this property */
 		public string safe_file_name {
@@ -305,64 +297,53 @@ namespace Geany {
 		}
 		
 		/**
-		 * Document:file_name:
+		 * Gets/sets this document's UTF-8 encoded filename. 
 		 * 
-		 * Gets/sets this document's UTF-8 encoded filename.  Setting this
-		 * property has the same effect as using the save_as() method.  The
-		 * value may be #null.
+		 * Setting this property has the same effect as using the 
+		 * {@link save_as} method.
 		 */
-		[CCode (cname = "file_name")] string? _file_name;
 		public string? file_name {
 			[CCode (cname = "__geany_vala_plugin_document_get_file_name")]
 			get { return _file_name; }
 		}
+		[CCode (cname = "file_name")] string? _file_name;
 		
 		/**
-		 * Document:file_type:
-		 * 
 		 * Gets/sets the filetype for this document, which controls syntax
 		 * highlighting and tags.
 		 */
-		[CCode (cname = "file_type")] Filetype _file_type;
 		public Filetype file_type {
 			[CCode (cname = "__geany_vala_plugin_document_get_file_type")]
 			get { return _file_type; }
 			[CCode (cname = "__geany_vala_plugin_document_set_file_type")]
 			set { set_filetype (value); }
 		}
+		[CCode (cname = "file_type")] Filetype _file_type;
 		
 		/**
-		 * Document:has_bom:
-		 * 
-		 * Gets whether the file for this document has a Byte Order Mark.  This
-		 * property is read-only.
+		 * Gets whether the file for this document has a Byte Order Mark.
 		 */
-		[CCode (cname = "has_bom")] bool _has_bom;
 		public bool has_bom {
 			[CCode (cname = "__geany_vala_plugin_document_get_has_bom")]
 			get { return _has_bom; }
 		}
+		[CCode (cname = "has_bom")] bool _has_bom;
 		
 		/**
-		 * Document:has_tags:
+		 * Gets whether this document supports source code symbols (tags).
 		 * 
-		 * Gets whether this document supports source code symbols (tags),
-		 * which will show in the sidebar and will be used for auto-completion
-		 * and calltips.  This property is read-only.
+		 * Tags will show in the sidebar and will be used for auto-completion
+		 * and calltips.
 		 */
-		[CCode (cname = "has_tags")] bool _has_tags;
 		public bool has_tags {
 			[CCode (cname = "__geany_vala_plugin_document_get_has_tags")]
 			get { return _has_tags; }
 		}
+		[CCode (cname = "has_tags")] bool _has_tags;
 		
 		/**
-		 * Document:index:
-		 * 
-		 * Gets the document's index in the documents array.  This property
-		 * is read-only.
+		 * Gets the document's index in the documents array.
 		 */
-		[CCode (cname = "index")] int _index;
 		/* Not sure why indes is signed in Geany's side, it is always >= 0 and
 		 * represents a array index. However, it would need to change this
 		 * get_from_index() too, so wrap it... */
@@ -370,67 +351,59 @@ namespace Geany {
 			[CCode (cname = "__geany_vala_plugin_document_get_index")]
 			get { return _index; }
 		}
+		[CCode (cname = "index")] int _index;
 		
 		/**
-		 * Document:is_valid:
-		 * 
-		 * Gets whether the document is active and all propertie are set
-		 * correctly.  This property is read-only.
+		 * Gets whether the document is active and all properties are set
+		 * correctly.
 		 */
 		public bool is_valid { [CCode (cname = "DOC_VALID")] get; }
 		
 		/**
-		 * Document:is_read_only:
-		 * 
 		 * Gets/sets whether this document is read-only.
 		 */
-		[CCode (cname = "readonly")] bool _is_read_only;
 		public bool is_read_only {
 			[CCode (cname = "__geany_vala_plugin_document_get_is_read_only")]
 			get { return _is_read_only; }
 		}
+		[CCode (cname = "readonly")] bool _is_read_only;
+		
 		
 		/**
-		 * Document:real_path:
-		 * 
 		 * Gets the link-dereferenced, local-encoded file name for this 
-		 * Document.  This property is read-only.  The value can be #null if
-		 * the document is not saved to disk yet (has no file).
+		 * {@link Document}. 
+		 * 
+		 * The value can be null if the document is not saved to disk yet 
+		 * (has no file).
 		 */
-		[CCode (cname = "real_path")] string? _real_path;
 		public string? real_path {
 			[CCode (cname = "__geany_vala_plugin_document_get_real_path")]
 			get { return _real_path; }
 		}
+		[CCode (cname = "real_path")] string? _real_path;
 		
 		/**
-		 * Document:tm_file:
+		 * Gets the {@link TagManager.WorkObject} used for this document.
 		 * 
-		 * Gets the #TagManager.WorkObject used for this document.  This
-		 * property is read-only.  The value can be #null if there is no tag
-		 * manager used for this document.
+		 * The value can be null if there is no tag manager used for this 
+		 * document.
 		 */
-		[CCode (cname = "tm_file")] TagManager.WorkObject? _tm_file;
 		public TagManager.WorkObject? tm_file { /* needs better name? */
 			[CCode (cname = "__geany_vala_plugin_document_get_tm_file")]
 			get { return _tm_file; }
 		}
+		[CCode (cname = "tm_file")] TagManager.WorkObject? _tm_file;
 		
 		/**
-		 * Document:notebook_page:
-		 * 
-		 * Gets the #Gtk.Notebook page index for this document.  This property
-		 * is read-only.
+		 * Gets the {@link Gtk.Notebook} page index for this document.
 		 */
 		public int notebook_page { /* should cast to uint? */
 			[CCode (cname = "document_get_notebook_page")] get;
 		}
 		
 		/**
-		 * Document:status_color:
-		 * 
-		 * Gets the status color of the document or #null if the default
-		 * widget coloring should be used.  This property is read-only.
+		 * Gets the status color of the document or null if the default
+		 * widget coloring should be used.
 		 */
 		public unowned Gdk.Color? status_color {
 			[CCode (cname = "document_get_status_color")] get;
@@ -439,26 +412,27 @@ namespace Geany {
 		/* Document Methods */
 		
 		/**
-		 * get_display_basename:
-		 * @length:	The number of characters to ellipsize the basename to.
+		 * Gets the last part of the filename for this document, ellipsized 
+		 * (shortened) to the desired //length// or a default value if 
+		 * //length// is -1.
+		 * 
+		 * @param length The number of characters to ellipsize the basename to.
 		 *
-		 * Returns: Gets the last part of the filename for this document,
-		 *          ellipsized (shortened) to the desired @length or a default
-		 *          value if @length is -1.
+		 * @return The displayable basename for this document's file.
 		 */
 		[CCode (cname = "document_get_basename_for_display")]
 		public string get_display_basename (int length = -1);
 		
 		/**
-		 * open_files:
-		 * @filenames:	A list of filenames to load, in locale encoding.
-		 * @readonly:	Whether to open the document in read-only mode.
-		 * @ft:			The filetype for the document or #null to automatically
-		 * 				detect the filetypes.
-		 * @forced_enc:	The file encoding to use or #null to automatically
-		 * 				detect the file encoding.
+		 * Opens each file in the list //filenames// using the specified 
+		 * settings.
 		 * 
-		 * Opens each file in the list @filenames using the specified settings.
+		 * @param filenames  A list of filenames to load, in locale encoding.
+		 * @param readonly   Whether to open the document in read-only mode.
+		 * @param ft         The filetype for the document or null to 
+		 *                   automatically detect the filetypes.
+		 * @param forced_enc The file encoding to use or null to 
+		 *                   automatically detect the file encoding. 
 		 */
 		public static void open_files (GLib.SList<string> filenames,
 									   bool readonly = false,
@@ -466,86 +440,89 @@ namespace Geany {
 									   string? forced_enc = null);
 
 		/**
-		 * reload:
-		 * @forced_enc:	The file encoding to reload with or #null to detect
-		 * 				the encoding automatically.
-		 * 
-		 * Reloads the document's file using the specified @forced_enc 
+		 * Reloads the document's file using the specified //forced_enc//
 		 * encoding.
 		 * 
-		 * Returns:	#true if the document was reloaded successfully, otherwise
-		 * 			#false is returned.
+		 * @param forced_enc The file encoding to reload with or null to 
+		 *                   detect the encoding automatically.
+		 * 
+		 * @return true if the document was reloaded successfully, otherwise
+		 *         false is returned.
 		 */
 		[CCode (cname = "document_reload_file")]
 		public bool reload (string? forced_enc = null);
 		
 		/**
-		 * rename:
-		 * @new_filename:	The new filename in UTF-8 encoding.
+		 * Renames this documents file to //new_filename//.
 		 * 
-		 * Renames this documents file to @new_filename.  Only the file on
-		 * disk is actually renamed, you still have to call save_as() to
-		 * update this document.  This function also stops monitoring for file
-		 * changes to prevent receiving too many file change events while
-		 * renaming.  File monitoring is setup again in save_as().
+		 * Only the file on disk is actually renamed, you still have to call 
+		 * {@link save_as} to update this document. This function also stops
+		 * monitoring for file changes to prevent receiving too many file 
+		 * change events while renaming. File monitoring is setup again in 
+		 * {@link save_as}.
+		 * 
+		 * @param new_filename The new filename in UTF-8 encoding.
+		 * 
+		 * @see save_as
 		 */
 		[CCode (cname = "document_rename_file")]
 		public void rename (string new_filename);
 		
 		/**
-		 * save:
-		 * @force:	Whether to save the file even if it is not modified.
+		 * Saves this document to file.
 		 * 
-		 * Saves this document to file.  Saving may include replacing tab with
-		 * spaces, stripping trailing spaces and adding a final newline at the
-		 * end of the file, depending on user preferences.  Next, the
-		 * "document-before-save" signal is emitted, allowing plugins to modify
-		 * the document before it is saved, and data is actually written to
-		 * disk.  The filetype is set again or auto-detected if it hasn't been
-		 * set yet.  After this, the "document-save" signal is emitted for
-		 * plugins.
+		 * Saving may include replacing tab with spaces, stripping trailing
+		 * spaces and adding a final newline at the end of the file, depending
+		 * on user preferences. Next, the "document-before-save" signal is
+		 * emitted, allowing plugins to modify the document before it is saved,
+		 * and data is actually written to disk. The filetype is set again or
+		 * auto-detected if it hasn't been set yet. After this, the 
+		 * "document-save" signal is emitted for plugins.
 		 * 
 		 * If the file has not been modified, this functions does nothing
-		 * unless @force is set to #true.
+		 * unless //force// is set to true.
 		 * 
-		 * You should ensure #Document:file_name is not #null before calling
-		 * this, otherwise you should call #Dialogs.show_save_as().
+		 * You should ensure {@link file_name} is not null before calling
+		 * this, otherwise you should call {@link Dialogs.show_save_as}.
 		 * 
-		 * Returns: #true if the file was saved or #false if the file could not
-		 * 			or should not be saved.
+		 * @param force Whether to save the file even if it is not modified.
+		 * 
+		 * @return true if the file was saved or false if the file could not
+		 *         or should not be saved.
+		 * 
+		 * @see Dialogs.show_save_as
 		 */
 		[CCode (cname = "document_save_file")]
 		public bool save (bool force = false);
 		
 		/**
-		 * save_as:
-		 * @utf8_fname:	The new name for the document, in UTF-8 encoding or
-		 * 				#null (for what?).
-		 * 
 		 * Saves the document, detecting filetype.
 		 * 
-		 * Returns:	#true if the file was saved or #false if the file could
-		 * 			not be saved.
+		 * @param utf8_fname The new name for the document, in UTF-8 
+		 *                   encoding or null.
+		 * 
+		 * @return true if the file was saved or false if the file could
+		 *         not be saved.
 		 */
 		[CCode (cname = "document_save_file_as")]
-		public bool save_as (string? utf8_fname = null);
+		public bool save_as (string? utf8_fname = null); /* what does null do? */
 		
 		/* Document Construction, Retrieval and Destruction Methods */
 		
 		/**
-		 * new:
-		 * @utf8_filename:	The file name in UTF-8 encoding or #null to open
-		 * 					a file as "untitled".
-		 * @ft:				Filetype to set or #null to detect it from
-		 * 					@utf8_filename if not #null.
-		 * @text:			The initial content of the file (in UTF-8 encoding)
-		 * 					or #null.
+		 * Creates a new document.
 		 * 
-		 * Creates a new document.  Line endings in @text will bbe converted
-		 * to the default setting.  Afterwards, the "document-new" signal is
-		 * emitted for plugins.
+		 * Line endings in //text// will be converted to the default setting.
+		 * Afterwards, the "document-new" signal is emitted for plugins.
 		 * 
-		 * Returns: A new #Document.
+		 * @param utf8_filename The file name in UTF-8 encoding or null to
+		 *                      open a file as "untitled".
+		 * @param ft            Filetype to set or null to detect it from
+		 *                      //utf8_filename// if not null.
+		 * @param text          The initial content of the file (in UTF-8
+		 *                      encoding) or null.
+		 * 
+		 * @return A new {@link Document}.
 		 */
 		[CCode (cname = "document_new_file")]
 		public static unowned Document? @new (string? utf8_filename = null,
@@ -553,99 +530,96 @@ namespace Geany {
 											  string? text = null);
 		
 		/**
-		 * close:
-		 * 
 		 * Closes this document.
 		 * 
-		 * Returns: #true if the document was actually removed or #false
-		 * 			otherwise.
+		 * @return true if the document was actually removed or false otherwise.
 		 */
 		public bool close ();
 		
 		/**
-		 * close_notebook_page:
-		 * @page_num:	The #Gtk.Notebook tab page number to remove.
+		 * Removes the given {@link Gtk.Notebook} tab page at //page_num//
+		 * and clears all related information in the documents list.
 		 * 
-		 * Removes the given #Gtk.Notebook tab page at @page_num and clears
-		 * all related information in the documents list.
+		 * @param page_num The {@link Gtk.Notebook} tab page number to remove.
 		 * 
-		 * Returns: #true if the document was actually removed or #false
-		 * 			oterhwise.
+		 * @return true if the document was actually removed or false otherwise.
 		 */
 		[CCode (cname = "document_remove_page")]
 		public static bool close_notebook_page (uint page_num);
 		
 		/**
-		 * find_by_filename:
-		 * @utf8_filename:	The UTF-8 encoded filename to search for.
+		 * Finds a document with the given filename.
 		 * 
-		 * Finds a document with the given filename.  This matches either the
-		 * exact #file_name or variant filenames with relative elements in the
-		 * path (eg. "/dir/..//name" will match "/name").
+		 * This matches either the exact //utf8_filename// or variant
+		 * filenames with relative elements in the path, eg. '/dir/../\/name' 
+		 * will match '/name'.
 		 * 
-		 * Returns:	The matching #Document or #null if no document matched.
+		 * @param utf8_filename The UTF-8 encoded filename to search for.
+		 * 
+		 * @return The matching {@link Document} or null if no document matched.
 		 */
+		 /* FIXME: double forward slash in valadoc comment. */
 		public static unowned Document?	find_by_filename (string utf8_filename);
 		
 		/**
-		 * find_by_real_path:
-		 * @real_name:	The filename to search, which should be identical to
-		 * 				the string returned by #TagManager.get_real_path().
+		 * Finds a document whose //real_name// matches the given filename.
 		 * 
-		 * Finds a document whose @real_name matches the given filename.
+		 * @param real_name The filename to search, which should be identical
+		 *                  to the string returned by 
+		 *                  {@link TagManager.get_real_path}.
 		 * 
-		 * Returns:	The matching #Document or #null if no document matched.
+		 * @return The matching {@link Document} or null if no document matched.
 		 */
 		public static unowned Document?	find_by_real_path (string real_name);
 		
 		/**
-		 * get_current:
-		 * 
 		 * Finds the current document.
 		 * 
-		 * Returns: The current #Document or #null if there are no opened
-		 * 			documents.
+		 * @return The current {@link Document} or null if there are no opened
+		 *         documents.
 		 */
 		public static unowned Document?	get_current ();
 		
 		/**
-		 * get_from_notebook_page:
-		 * @page_num:	The notebook page number to search.
+		 * Finds the document for the given notebook page number 
+		 * //page_num//.
 		 * 
-		 * Finds the document for the given notebook page number @page_num.
+		 * @param page_num The notebook page number to search.
 		 * 
-		 * Returns:	The corresponding document for the given notebook page
-		 * 			or #null if there was no document at @page_num.
+		 * @return The corresponding document for the given notebook page
+		 *         or null if there was no document at //page_num//.
 		 */
 		[CCode (cname = "document_get_from_page")]
 		public static unowned Document?	get_from_notebook_page (uint page_num);
 		
 		/**
-		 * get_from_index:
-		 * @index:	Documents array index.
+		 * Gets the document from the documents array with //index//.
 		 * 
-		 * Gets the document from the documents array with @index.  Always
-		 * check the returned document is valid.
+		 * Always check the returned document is valid.
 		 * 
-		 * Returns: The document with @index or #null if @index is out of range.
+		 * @param index Documents array index.
+		 * 
+		 * @return The document with //index// or null if //index// is
+		 *         out of range.
 		 */
 		[CCode (cname = "document_index")]
 		public static unowned Document?	get_from_index (int index);
 		
 		/**
-		 * open:
-		 * @locale_filename:	The filename of the document to load, in locale
-		 * 						encoding.
-		 * @read_only:			Whether to open the document in read-only mode.
-		 * @ft:					The filetype for the document or #null to
-		 * 						auto-detect the filetype.
-		 * @forced_enc:			The file encoding to use or #null to auto-detect
-		 * 						the file encoding.
+		 * Opens a new document specified by //locale_filename//.
 		 * 
-		 * Opens a new document specified by @locale_filename.  Afterwards,
-		 * the "document-open" signals is emitted for plugins.
+		 * Afterwards, the "document-open" signals is emitted for plugins.
 		 * 
-		 * Returns:	The opened document or #null.
+		 * @param locale_filename The filename of the document to load, in 
+		 *                        locale encoding.
+		 * @param read_only       Whether to open the document in read-only
+		 *                        mode.
+		 * @param ft              The filetype for the document or null to
+		 *                        auto-detect the filetype.
+		 * @param forced_enc      The file encoding to use or null to
+		 *                        auto-detect the file encoding.
+		 * 
+		 * @return The opened document or null.
 		 */
 		[CCode (cname = "document_open_file")]
 		public static unowned Document?	open (string locale_filename,
@@ -1243,9 +1217,9 @@ namespace Geany {
 		}
 		[CCode (cprefix = "SC_EOL_")]
 		public enum EolMode {
-			LF,
+			CRLF,
 			CR,
-			CRLF
+			LF
 		}
 		
 		public Scintilla ();
@@ -1410,9 +1384,13 @@ namespace Geany {
 		}
 		[Compact]
 		public class SourceFile : WorkObject {
-			/** Programming language used */
+			/**
+			 * Programming language used
+			 */
 			public LangType		lang;
-			/** Whether this file should be scanned for tags */
+			/**
+			 * Whether this file should be scanned for tags
+			 */
 			public bool			inactive;
 			
 			/* Methods */
@@ -1422,15 +1400,23 @@ namespace Geany {
 		}
 		[Compact]
 		public class Project : WorkObject {
-			/** Top project directory */
+			/**
+			 * Top project directory
+			 */
 			public string			dir;
-			/** Extensions for source files (wildcards, NULL terminated) */
+			/**
+			 * Extensions for source files (wildcards, NULL terminated)
+			 */
 			[CCode (array_length = false, array_null_terminated = true)]
 			public string[]			sources;
-			/** File patters to ignore */
+			/**
+			 * File patters to ignore
+			 */
 			[CCode (array_length = false, array_null_terminated = true)]
 			public string[]			ignore;
-			/** Array of TMSourceFile present in the project */
+			/**
+			 * Array of {@link TagManager.SourceFile}s present in the project
+			 */
 			public GLib.PtrArray	file_list;
 		}
 		[SimpleType]
@@ -1571,27 +1557,33 @@ namespace Geany {
 		[Compact]
 		[CCode (cname = "TMTag", cprefix = "tm_tag_")]
 		public class Tag {
-			/** tag name */
 			public string			name;
-			/** tag type */
 			public TagType			type;
-			/** tag attributes */
-			public TagAttributes	atts;
+			[CCode (cname = "atts")]
+			public TagAttributes	attributes;
 		}
 		/* this is a dummy proxy structure because Vala doesn't support inline anonymous structs */
 		[CCode (cname = "__GeanyValaPluginTMSymbolInfo")]
 		public struct SymbolInfo {
-			/** Array of child symbols */
+			/**
+			 * Array of child symbols
+			 */
 			public GLib.PtrArray	children;
-			/** Prototype tag for functions */
+			/**
+			 * Prototype tag for functions
+			 */
 			public Tag				equiv;
 		}
 		[Compact]
 		[CCode (cname = "TMSymbol", cprefix = "tm_symbol_tree_" /*, free_function = "tm_symbol_tree_free"*/)]
 		public class Symbol {
-			/** The tag corresponding to this symbol */
+			/**
+			 * The tag corresponding to this symbol
+			 */
 			public Tag			tag;
-			/** Parent class/struct for functions/variables */
+			/**
+			 * Parent class/struct for functions/variables 
+			 */
 			public Symbol?		parent;
 			public SymbolInfo	info;
 		}
