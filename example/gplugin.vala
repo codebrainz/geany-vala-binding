@@ -54,7 +54,7 @@ private int remove_duplicated_lines (Document? doc)
 	int n_repl = 0;
 	
 	if (doc.is_valid) {
-		var sci = doc.editor.sci;
+		var sci = doc.editor.scintilla;
 		
 		sci.start_undo_action ();
 		string? prev_line = null;

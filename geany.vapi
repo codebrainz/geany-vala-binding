@@ -64,6 +64,27 @@ namespace Geany {
 		public int			hard_tab_width;
 		public AutoIndent	auto_indent_mode;
 		public bool			detect_type;
+		
+		/**
+		 * Gets the default indentation prefs.
+		 * 
+		 * Prefs can be different according to the {@link Project} or 
+		 * {@link Document}.
+		 * 
+		 * ''Warning:'' Always get a fresh result instead of keeping a 
+		 * reference around if the editor/project settings may have changed,
+		 * or if this function has been called for a different editor.
+		 * 
+		 * If you have an editor and want to get its indent prefs, use
+		 * {@link Editor.indent_prefs}.
+		 * 
+		 * @param editor Don't use this parameter
+		 * @return The default indentation preferences
+		 * 
+		 * @see Editor.indent_prefs
+		 */
+		[CCode (cname = "editor_get_indent_prefs")]
+		public static unowned IndentPrefs get_default (Editor? editor = null);
 	}
 	/* reviewed */
 	[Compact]
@@ -105,6 +126,50 @@ namespace Geany {
 		public string		color_scheme;
 		public int			show_virtual_space;
 		public bool			long_line_enabled;
+		
+		/**
+		 * Gets the default End of Line character (LF, CR/LF, CR), one of "\n",
+		 * "\r\n" or "\r".
+		 * 
+		 * If you have an editor and want to know it's EOL character, use
+		 * {@link Editor.eol_char}.
+		 * 
+		 * @param editor Don't use this parameter
+		 * @return The default EOL character
+		 * 
+		 * @see Editor.eol_char
+		 */
+		[CCode (cname = "editor_get_eol_char")]
+		public static unowned string get_default_eol_char (Editor? editor = null);
+		
+		/**
+		 * Gets the default end of line characters mode.
+		 * 
+		 * If you have an editor and want to know it's EOL mode, use
+		 * {@link Editor.eol_char_mode}.
+		 * 
+		 * @param editor Don't use this parameter
+		 * @return The default EOL mode
+		 * 
+		 * @see Editor.eol_char_mode
+		 */
+		[CCode (cname = "editor_get_eol_char_mode")]
+		public static Scintilla.EolMode get_default_eol_char_mode (Editor? editor = null);
+		
+		/**
+		 * Gets the localized name (for displaying) of the default End of Line
+		 * characters (LF, CR/LF, CR).
+		 * 
+		 * If you have an editor and want to know it's EOL char name, use
+		 * {@link Editor.eol_char_name}.
+		 * 
+		 * @param editor Don't use this parameter
+		 * @return The default EOL character's name
+		 * 
+		 * @see Editor.eol_char_name
+		 */
+		[CCode (cname = "editor_get_eol_char_name")]
+		public static unowned string get_default_eol_char_name (Editor? editor = null);
 	}
 	/* reviewed */
 	[Compact]
@@ -636,38 +701,283 @@ namespace Geany {
 		ERROR,
 		SEARCH
 	}
+	namespace Snippets {
+		/**
+		 * Gets a snippet by name.
+		 * 
+		 * If //editor// is not null, returns a snippet specific to the
+		 * document filetype. If //editor// is null, returns a snippet from
+		 * the default set.
+		 * 
+		 * @param editor {@link Editor} or null.
+		 * @param snippet Name of snippet to get.
+		 * 
+		 * @return Snippet or null if it was not found.
+		 * 
+		 * @see Editor.find_snippet
+		 */
+		[CCode (cname = "editor_find_snippet")]
+		public unowned string? find (Editor? editor, string snippet_name);
+	}
 	/* reviewed */
 	[Compact]
 	[CCode (cname = "struct GeanyEditor", cprefix = "editor_")]
 	public class Editor {
-		public bool			auto_indent;
-		public Document		document;
-		public int			indent_width;
-		public bool			line_breaking;
-		public bool			line_wrapping;
-		public Sci			sci;
-		public float		scroll_percent;
-
 		[CCode (cname = "GEANY_WORDCHARS")]
-		public static unowned string		wordchars;
+		public static const string WORD_CHARS;
+		
+		/* Editor Properties */
 
-		public Sci							create_widget ();
-		public static unowned string?		find_snippet (Editor? editor, string snippet_name);
-		public static unowned string		get_eol_char (Editor? editor = null);
-		public static int					get_eol_char_len (Editor? editor = null);
-		public static unowned string		get_eol_char_name (Editor? editor = null);
-		public static unowned IndentPrefs	get_indent_prefs (Editor? editor = null);
-		public string?						get_word_at_pos (int pos, string? wordchars = null);
-		public bool							goto_pos (int pos, bool mark = false);
-		public void							indicator_clear (Indicator indic);
-		public void							indicator_set_on_line (Indicator indic, int line);
-		public void							indicator_set_on_range (Indicator indic, int start, int end);
-		public void							insert_snipped (int pos, string snippet);
-		public void							insert_text_block (string text, int insert_pos,
-															   int cursor_index = -1,
-															   int newline_indent_size = -1,
-															   bool replace_newlines = true);
-		public void							set_indent_type (IndentType type);
+		/**
+		 * true if auto-indentation is enabled false otherwise.
+		 */
+		public bool auto_indent {
+			[CCode (cname = "geany_vala_plugin_editor_get_auto_indent")]
+			get { return _auto_indent; }
+		}
+		[CCode (cname = "auto_indent")] bool _auto_indent;
+		
+		/**
+		 * The {@link Document} associated with the editor.
+		 * 
+		 * @see Document
+		 */
+		public Document document {
+			[CCode (cname = "geany_vala_plugin_editor_get_document")]
+			get { return _document; }
+		}
+		[CCode (cname = "document")] Document _document;
+		
+		/**
+		 * The width for the indentation, in characters. This is not
+		 * necessarily the number of character used for indentation if e.g.
+		 * indentation uses tabs or tags+space.
+		 */
+		public int indent_width {
+			[CCode (cname = "geany_vala_plugin_editor_get_indent_width")]
+			get { return this.indent_prefs.width; }
+		}
+		
+		/**
+		 * Whether long lines are split as you type or not.
+		 */
+		public bool line_breaking {
+			[CCode (cname = "geany_vala_plugin_editor_get_line_breaking")]
+			get { return _line_breaking; }
+		}
+		[CCode (cname = "line_breaking")] bool _line_breaking;
+		
+		/**
+		 * true if line wrapping is enabled.
+		 */
+		public bool line_wrapping {
+			[CCode (cname = "geany_vala_plugin_editor_get_line_wrapping")]
+			get { return _line_wrapping; }
+		}
+		[CCode (cname = "line_wrapping")] bool _line_wrapping;
+		
+		/**
+		 * The {@link Sci} [[http://www.scintilla.org/|Scintilla]] editor widget
+		 * associated with this editor.
+		 * 
+		 * @see Sci
+		 */
+		public Sci scintilla {
+			[CCode (cname = "geany_vala_plugin_editor_get_scintilla")]
+			get { return _scintilla; }
+		}
+		[CCode (cname = "sci")] Sci _scintilla;
+		
+		/**
+		 * The percentage to scroll view by when painting, if positive.
+		 */
+		public float scroll_percent {
+			[CCode (cname = "geany_vala_plugin_editor_get_scroll_percent")]
+			get { return _scroll_percent; }
+		}
+		[CCode (cname = "scroll_percent")] float _scroll_percent;
+		
+		/**
+		 * Gets the used End of Line characters (LF, CR/LF, CR) in this
+		 * {@link Editor}. The value will be one of "\n", "\r\n" or "\r".
+		 * 
+		 * @see App.default_eol_char
+		 */
+		public unowned string eol_char {
+			[CCode (cname = "editor_get_eol_char")] get;
+		}
+		
+		/**
+		 * Gets the end of line characters mode in this {@link Editor}.
+		 * 
+		 * @see App.default_eol_char_mode
+		 * @see Scintilla.EolMode
+		 */
+		public Scintilla.EolMode eol_char_mode {
+			[CCode (cname = "editor_get_eol_char_mode")] get;
+		}
+		
+		/**
+		 * Retrieves the localized name (for displaying) of the used End of
+		 * Line characters (LF, CR/LF, CR) in this {@link Editor}.
+		 * 
+		 * @see App.default_eol_char_name
+		 */
+		public unowned string eol_char_name {
+			[CCode (cname = "editor_get_eol_char_name")] get;
+		}
+		
+		/**
+		 * Gets the indentation prefs for this {@link Editor}.
+		 * 
+		 * Prefs can be different according to the {@link Project} or 
+		 * {@link Document}.
+		 * 
+		 * ''Warning:'' Always get a fresh result instead of keeping a 
+		 * reference around if the editor/project settings may have changed,
+		 * or if this function has been called for a different editor.
+		 * 
+		 * @see App.get_indent_prefs
+		 */
+		public unowned IndentPrefs indent_prefs {
+			[CCode (cname = "editor_get_indent_prefs")] get;
+		}
+		
+		/**
+		 * The indent type for the editor.
+		 */
+		public IndentType indent_type {
+			[CCode (cname = "geany_vala_plugin_editor_get_indent_type")]
+			get { return this.indent_prefs.type; }
+			[CCode (cname = "editor_set_indent_type")] set;
+		}
+		
+		/* Editor Methods */
+		
+		/**
+		 * Gets a snippet by name for the language used by this {@link Editor}.
+		 * 
+		 * @param snippet Name of snippet to get.
+		 * 
+		 * @return Snippet or null if it was not found.
+		 * 
+		 * @see Snippets.find
+		 */
+		public unowned string? find_snippet (string snippet_name);
+		
+		/**
+		 * Finds the word at the position specified by //pos//.
+		 * 
+		 * Additional //wordschars// can be specified to define what to 
+		 * consider a word.
+		 * 
+		 * @param pos       The {@link Editor} to operate on.
+		 * @param wordchars The characters that separate words, meaning all
+		 *                  characters to count as part of a word. If this
+		 *                  is null, the default {@link WORD_CHARS} are used.
+		 * 
+		 * @return A string containing the word at the given position or null.
+		 */
+		/* pos should be unsigned? */
+		public string? get_word_at_pos (int pos, string? wordchars = null);
+		
+		/**
+		 * Moves the position to //pos//, switching to the document if
+		 * necessary, setting a marker if //mark// is true.
+		 * 
+		 * @param pos  The position to go to.
+		 * @param mark Whether to set a mark on the position or not.
+		 * 
+		 * @return true if the action has been performed, false otherwise.
+		 */
+		/* pos should be unsigned? */
+		public bool goto_pos (int pos, bool mark = false);
+		
+		/**
+		 * Deletes all currently set indicators matching //indic// in this
+		 * {@link Editor}'s window.
+		 * 
+		 * @param indic The {@link Indicator} to clear.
+		 */
+		public void indicator_clear (Indicator indic);
+		
+		/**
+		 * Sets an indictor //indic// on //line//.
+		 * 
+		 * Whitespace at the start and end of the line is not marked.
+		 * 
+		 * @param indic The {@link Indicator} to use.
+		 * @param line  The line number which should be marked.
+		 * 
+		 * @see indicator_set_on_range
+		 */
+		/* line should be unsigned? */
+		public void indicator_set_on_line (Indicator indic, int line);
+		
+		/**
+		 * Sets an indicator on the range specified by //start// and //end//.
+		 * 
+		 * No error checking or whitespace removal is performed, this should
+		 * be done by the caller if necessary.
+		 * 
+		 * @param indic The @{link Indicator} to use.
+		 * @param start The starting position for the marker.
+		 * @param end   The ending position for the marker.
+		 * 
+		 * @see indicator_set_on_line
+		 */
+		public void indicator_set_on_range (Indicator indic, int start, int end);
+		
+		/**
+		 * Replaces all special sequences in //snippet// and inserts it at
+		 * //pos//.
+		 * 
+		 * If you insert at the current position, consider calling
+		 * {@link Sci.scroll_caret} after this method.
+		 * 
+		 * @param pos     The position to insert the snippet at.
+		 * @param snippet The snippet to use.
+		 */
+		/* pos should be unsigned? */
+		public void insert_snippet (int pos, string snippet);
+		
+		/**
+		 * Inserts text, replacing //\t// characters (0x9) and //\n// 
+		 * characters accordingly for the document.
+		 * 
+		 *  * Leading tabs are replaced with the correct indentation.
+		 *  * Non-leading tabs are replaced with spaces (except when using
+		 *    'Tabs' indent type.
+		 *  * Newline chars are replaced with the correct line ending string.
+		 *    This is very useful for inserting code without having to handle
+		 *    the indent type yourself (Tabs & Spaces mode can be tricky).
+		 * 
+		 * ''Warning:'' Make sure all //\t// tab chars in //text// are indented
+		 * as indent widths or alignment, not hard tabs, as those won't be
+		 * preserved.
+		 * 
+		 * ''Note:'' This method doesn't scroll the cursor into view afterwards.
+		 * 
+		 * @param text                Text to insert indented for example as 
+		 *                            'if (foo)\n\tbar();'.
+		 * @param insert_pos          Position to insert text at. 
+		 * @param cursor_index        If >= 0, the index into //text// to place
+		 *                            the cursor at.
+		 * @param newline_indent_size Indentation size (in characters) to
+		 *                            insert for each newline. Use -1 to read
+		 *                            the indent size from the line with
+		 *                            //insert_pos// on it.
+		 * @param replace_newlines    Whether to replace newlines or not.  If
+		 *                            newlines have been replaced already, this
+		 *                            should be false, to avoid errors, for
+		 *                            example on Windows.
+		 */
+		/* pos should be unsigned? */
+		public void insert_text_block (string text, 
+									   int insert_pos,
+									   int cursor_index = -1,
+									   int newline_indent_size = -1,
+									   bool replace_newlines = true);
 	}
 	/* reviewed */
 	[CCode (cname = "GeanyEncodingIndex", cprefix = "GEANY_ENCODING_", has_type_id = false)]
@@ -1229,6 +1539,17 @@ namespace Geany {
 	/* TODO: use proper types for the argument when we get them (enums & co) */
 	[CCode (cname = "ScintillaObject", cprefix = "sci_")]
 	public class Sci : Scintilla {
+		/**
+		 * Creates a new {@link Sci} widget based on the settings in //editor//.
+		 * 
+		 * @param editor The editor who's settings to use the create the 
+		 *               {@link Sci} widget.
+		 * 
+		 * @return A new {@link Sci} widget.
+		 */
+		[CCode (cname = "editor_create_widget")]
+		public Sci (Editor editor) {}
+		
 		/* FIXME: we need this to be really implemented for find_text() to be usable */
 		public struct TextToFind {
 		}
