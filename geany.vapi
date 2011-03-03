@@ -57,13 +57,61 @@ namespace Geany {
 		public bool		compiler_tab_autoscroll;
 	}
 	/* reviewed */
+	/**
+	 * Indentation prefs that might be different according to the
+	 * {@link Project} or {@link Document}.
+	 * 
+	 * Use {@link Editor.indent_prefs} to get the prefs for a
+	 * particular document.
+	 **/
 	[Compact]
 	public class IndentPrefs {
-		public int			width;
-		public IndentType	type;
-		public int			hard_tab_width;
-		public AutoIndent	auto_indent_mode;
-		public bool			detect_type;
+		/**
+		 * The indentation with, in character size.
+		 * 
+		 * This is not necessarily the number of character used for indentation
+		 * if e.g. indentation uses tabs or tabs+space.
+		 */
+		public int width {
+			[CCode (cname = "geany_vala_pluing_indent_prefs_get_width")]
+			get { return _width; }
+		}
+		[CCode (cname = "width")] int _width;
+		/**
+		 * The indentation type (spaces, tabs or both).
+		 */
+		public IndentType type {
+			[CCode (cname = "geany_vala_pluing_indent_prefs_get_type")]
+			get { return _type; }
+		}
+		[CCode (cname = "type")] IndentType _type;
+		/**
+		 * The natural width of a tab, used when {@link type} is
+		 * {@link IndentType.BOTH}.
+		 * 
+		 * @see Sci.get_tab_width
+		 */
+		public int hard_tab_width {
+			[CCode (cname = "geany_vala_pluing_indent_prefs_get_hard_tab_width")]
+			get { return _hard_tab_width; }
+		}
+		[CCode (cname = "hard_tab_width")] int _hard_tab_width;
+		/**
+		 * Mode of auto-indentation
+		 */
+		public AutoIndent auto_indent_mode {
+			[CCode (cname = "geany_vala_pluing_indent_prefs_get_auto_indent_mode")]
+			get { return _auto_indent_mode; }
+		}
+		[CCode (cname = "auto_indent_mode")] AutoIndent _auto_indent_mode;
+		/**
+		 * Whether to try to detect automatically or not the indentation type
+		 */
+		public bool detect_type {
+			[CCode (cname = "geany_vala_pluing_indent_prefs_get_detect_type")]
+			get { return _detect_type; }
+		}
+		[CCode (cname = "detect_type")] bool _detect_type;
 		
 		/**
 		 * Gets the default indentation prefs.
@@ -751,7 +799,7 @@ namespace Geany {
 		/**
 		 * The width for the indentation, in characters. This is not
 		 * necessarily the number of character used for indentation if e.g.
-		 * indentation uses tabs or tags+space.
+		 * indentation uses tabs or tabs+space.
 		 */
 		public int indent_width {
 			[CCode (cname = "geany_vala_plugin_editor_get_indent_width")]
