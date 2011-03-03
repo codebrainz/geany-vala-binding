@@ -243,52 +243,415 @@ namespace Geany {
 			cprefix = "document_",
 			free_function = "document_close")]
 	public class Document {
-		public bool						changed;
-		public Editor					editor;
-		public string					encoding;
-		public string?					file_name;
-		public Filetype					file_type;
-		public bool						has_bom;
-		public bool						has_tags;
-		public int						index;
-		public bool						readonly;
-		public string?					real_path;
-		public TagManager.WorkObject?	tm_file;
-		public bool 					valid {
-			[CCode (cname = "DOC_VALID")]
-			get;
+		/* Private methods used to implement properties */
+
+		private void						set_encoding (string new_encoding);
+		private void						set_filetype (Filetype type);
+		private void						set_text_changed (bool changed);
+		private bool 						save_file_as (string? utf8_fname = null);
+
+		/* Document Properties */
+
+		/**
+		 * Document:has_changed:
+		 * 
+		 * Gets whether the document has changed since it was last saved.  This
+		 * property is read-only.
+		 */
+		[CCode (cname = "changed")] bool _has_changed;
+		public bool has_changed {
+			[CCode (cname = "__geany_vala_plugin_document_get_has_changed")]
+			get { return _has_changed; }
+			[CCode (cname = "__geany_vala_plugin_document_set_has_changed")]
+			set { set_text_changed (value); }
 		}
 		
-		[CCode (cname = "DOC_FILENAME")]
-		public unowned string 			get_filename ();
-		[Deprecated (replacement = "Geany.Document.valid")]
-		[CCode (cname = "DOC_VALID")]
-		public bool 					is_valid ();
+		/**
+		 * Document:editor:
+		 * 
+		 * Gets the #Editor associated with the document.  This property is
+		 * read-only.
+		 */
+		[CCode (cname = "editor")] Editor _editor;
+		public Editor editor {
+			[CCode (cname = "__geany_vala_plugin_document_get_editor")]
+			get { return _editor; }
+		}
+
+		/**
+		 * Document:encoding:
+		 * 
+		 * Gets/sets the encoding of the document.  This must be a valid
+		 * string representation of an encoding, which can be retrieved with
+		 * the #Encoding.get_charset_from_index() function.
+		 */
+		[CCode (cname = "encoding")] string _encoding;
+		public string encoding {
+			[CCode (cname = "__geany_vala_plugin_document_get_encoding")]
+			get { return _encoding; }
+			[CCode (cname = "__geany_vala_plugin_document_set_encoding")]
+			set { set_encoding (value); }
+		}
 		
-		public bool						close ();
+		/**
+		 * Document:safe_file_name:
+		 * 
+		 * Gets the document's file name or a string representing an unsaved
+		 * document, for example 'untitled'.  This property is read-only.
+		 */
+		/* FIXME: I'm not really sure of the name of this property */
+		public string safe_file_name {
+			[CCode (cname = "DOC_FILENAME")] get;
+		}
+		
+		/**
+		 * Document:file_name:
+		 * 
+		 * Gets/sets this document's UTF-8 encoded filename.  Setting this
+		 * property has the same effect as using the save_as() method.  The
+		 * value may be #null.
+		 */
+		[CCode (cname = "file_name")] string? _file_name;
+		public string? file_name {
+			[CCode (cname = "__geany_vala_plugin_document_get_file_name")]
+			get { return _file_name; }
+		}
+		
+		/**
+		 * Document:file_type:
+		 * 
+		 * Gets/sets the filetype for this document, which controls syntax
+		 * highlighting and tags.
+		 */
+		[CCode (cname = "file_type")] Filetype _file_type;
+		public Filetype file_type {
+			[CCode (cname = "__geany_vala_plugin_document_get_file_type")]
+			get { return _file_type; }
+			[CCode (cname = "__geany_vala_plugin_document_set_file_type")]
+			set { set_filetype (value); }
+		}
+		
+		/**
+		 * Document:has_bom:
+		 * 
+		 * Gets whether the file for this document has a Byte Order Mark.  This
+		 * property is read-only.
+		 */
+		[CCode (cname = "has_bom")] bool _has_bom;
+		public bool has_bom {
+			[CCode (cname = "__geany_vala_plugin_document_get_has_bom")]
+			get { return _has_bom; }
+		}
+		
+		/**
+		 * Document:has_tags:
+		 * 
+		 * Gets whether this document supports source code symbols (tags),
+		 * which will show in the sidebar and will be used for auto-completion
+		 * and calltips.  This property is read-only.
+		 */
+		[CCode (cname = "has_tags")] bool _has_tags;
+		public bool has_tags {
+			[CCode (cname = "__geany_vala_plugin_document_get_has_tags")]
+			get { return _has_tags; }
+		}
+		
+		/**
+		 * Document:index:
+		 * 
+		 * Gets the document's index in the documents array.  This property
+		 * is read-only.
+		 */
+		[CCode (cname = "index")] int _index;
+		/* Not sure why indes is signed in Geany's side, it is always >= 0 and
+		 * represents a array index. However, it would need to change this
+		 * get_from_index() too, so wrap it... */
+		public int index {
+			[CCode (cname = "__geany_vala_plugin_document_get_index")]
+			get { return _index; }
+		}
+		
+		/**
+		 * Document:is_valid:
+		 * 
+		 * Gets whether the document is active and all propertie are set
+		 * correctly.  This property is read-only.
+		 */
+		public bool is_valid { [CCode (cname = "DOC_VALID")] get; }
+		
+		/**
+		 * Document:is_read_only:
+		 * 
+		 * Gets/sets whether this document is read-only.
+		 */
+		[CCode (cname = "readonly")] bool _is_read_only;
+		public bool is_read_only {
+			[CCode (cname = "__geany_vala_plugin_document_get_is_read_only")]
+			get { return _is_read_only; }
+		}
+		
+		/**
+		 * Document:real_path:
+		 * 
+		 * Gets the link-dereferenced, local-encoded file name for this 
+		 * Document.  This property is read-only.  The value can be #null if
+		 * the document is not saved to disk yet (has no file).
+		 */
+		[CCode (cname = "real_path")] string? _real_path;
+		public string? real_path {
+			[CCode (cname = "__geany_vala_plugin_document_get_real_path")]
+			get { return _real_path; }
+		}
+		
+		/**
+		 * Document:tm_file:
+		 * 
+		 * Gets the #TagManager.WorkObject used for this document.  This
+		 * property is read-only.  The value can be #null if there is no tag
+		 * manager used for this document.
+		 */
+		[CCode (cname = "tm_file")] TagManager.WorkObject? _tm_file;
+		public TagManager.WorkObject? tm_file { /* needs better name? */
+			[CCode (cname = "__geany_vala_plugin_document_get_tm_file")]
+			get { return _tm_file; }
+		}
+		
+		/**
+		 * Document:notebook_page:
+		 * 
+		 * Gets the #Gtk.Notebook page index for this document.  This property
+		 * is read-only.
+		 */
+		public int notebook_page { /* should cast to uint? */
+			[CCode (cname = "document_get_notebook_page")] get;
+		}
+		
+		/**
+		 * Document:status_color:
+		 * 
+		 * Gets the status color of the document or #null if the default
+		 * widget coloring should be used.  This property is read-only.
+		 */
+		public unowned Gdk.Color? status_color {
+			[CCode (cname = "document_get_status_color")] get;
+		}
+		
+		/* Document Methods */
+		
+		/**
+		 * get_display_basename:
+		 * @length:	The number of characters to ellipsize the basename to.
+		 *
+		 * Returns: Gets the last part of the filename for this document,
+		 *          ellipsized (shortened) to the desired @length or a default
+		 *          value if @length is -1.
+		 */
+		[CCode (cname = "document_get_basename_for_display")]
+		public string get_display_basename (int length = -1);
+		
+		/**
+		 * open_files:
+		 * @filenames:	A list of filenames to load, in locale encoding.
+		 * @readonly:	Whether to open the document in read-only mode.
+		 * @ft:			The filetype for the document or #null to automatically
+		 * 				detect the filetypes.
+		 * @forced_enc:	The file encoding to use or #null to automatically
+		 * 				detect the file encoding.
+		 * 
+		 * Opens each file in the list @filenames using the specified settings.
+		 */
+		public static void open_files (GLib.SList<string> filenames,
+									   bool readonly = false,
+									   Filetype? ft = null,
+									   string? forced_enc = null);
+
+		/**
+		 * reload:
+		 * @forced_enc:	The file encoding to reload with or #null to detect
+		 * 				the encoding automatically.
+		 * 
+		 * Reloads the document's file using the specified @forced_enc 
+		 * encoding.
+		 * 
+		 * Returns:	#true if the document was reloaded successfully, otherwise
+		 * 			#false is returned.
+		 */
+		[CCode (cname = "document_reload_file")]
+		public bool reload (string? forced_enc = null);
+		
+		/**
+		 * rename:
+		 * @new_filename:	The new filename in UTF-8 encoding.
+		 * 
+		 * Renames this documents file to @new_filename.  Only the file on
+		 * disk is actually renamed, you still have to call save_as() to
+		 * update this document.  This function also stops monitoring for file
+		 * changes to prevent receiving too many file change events while
+		 * renaming.  File monitoring is setup again in save_as().
+		 */
+		[CCode (cname = "document_rename_file")]
+		public void rename (string new_filename);
+		
+		/**
+		 * save:
+		 * @force:	Whether to save the file even if it is not modified.
+		 * 
+		 * Saves this document to file.  Saving may include replacing tab with
+		 * spaces, stripping trailing spaces and adding a final newline at the
+		 * end of the file, depending on user preferences.  Next, the
+		 * "document-before-save" signal is emitted, allowing plugins to modify
+		 * the document before it is saved, and data is actually written to
+		 * disk.  The filetype is set again or auto-detected if it hasn't been
+		 * set yet.  After this, the "document-save" signal is emitted for
+		 * plugins.
+		 * 
+		 * If the file has not been modified, this functions does nothing
+		 * unless @force is set to #true.
+		 * 
+		 * You should ensure #Document:file_name is not #null before calling
+		 * this, otherwise you should call #Dialogs.show_save_as().
+		 * 
+		 * Returns: #true if the file was saved or #false if the file could not
+		 * 			or should not be saved.
+		 */
+		[CCode (cname = "document_save_file")]
+		public bool save (bool force = false);
+		
+		/**
+		 * save_as:
+		 * @utf8_fname:	The new name for the document, in UTF-8 encoding or
+		 * 				#null (for what?).
+		 * 
+		 * Saves the document, detecting filetype.
+		 * 
+		 * Returns:	#true if the file was saved or #false if the file could
+		 * 			not be saved.
+		 */
+		[CCode (cname = "document_save_file_as")]
+		public bool save_as (string? utf8_fname = null);
+		
+		/* Document Construction, Retrieval and Destruction Methods */
+		
+		/**
+		 * new:
+		 * @utf8_filename:	The file name in UTF-8 encoding or #null to open
+		 * 					a file as "untitled".
+		 * @ft:				Filetype to set or #null to detect it from
+		 * 					@utf8_filename if not #null.
+		 * @text:			The initial content of the file (in UTF-8 encoding)
+		 * 					or #null.
+		 * 
+		 * Creates a new document.  Line endings in @text will bbe converted
+		 * to the default setting.  Afterwards, the "document-new" signal is
+		 * emitted for plugins.
+		 * 
+		 * Returns: A new #Document.
+		 */
+		[CCode (cname = "document_new_file")]
+		public static unowned Document? @new (string? utf8_filename = null,
+											  Filetype? ft = null,
+											  string? text = null);
+		
+		/**
+		 * close:
+		 * 
+		 * Closes this document.
+		 * 
+		 * Returns: #true if the document was actually removed or #false
+		 * 			otherwise.
+		 */
+		public bool close ();
+		
+		/**
+		 * close_notebook_page:
+		 * @page_num:	The #Gtk.Notebook tab page number to remove.
+		 * 
+		 * Removes the given #Gtk.Notebook tab page at @page_num and clears
+		 * all related information in the documents list.
+		 * 
+		 * Returns: #true if the document was actually removed or #false
+		 * 			oterhwise.
+		 */
+		[CCode (cname = "document_remove_page")]
+		public static bool close_notebook_page (uint page_num);
+		
+		/**
+		 * find_by_filename:
+		 * @utf8_filename:	The UTF-8 encoded filename to search for.
+		 * 
+		 * Finds a document with the given filename.  This matches either the
+		 * exact #file_name or variant filenames with relative elements in the
+		 * path (eg. "/dir/..//name" will match "/name").
+		 * 
+		 * Returns:	The matching #Document or #null if no document matched.
+		 */
 		public static unowned Document?	find_by_filename (string utf8_filename);
-		public static unowned Document?	find_by_real_path (string realname);
-		public string					get_basename_for_display (int length);
+		
+		/**
+		 * find_by_real_path:
+		 * @real_name:	The filename to search, which should be identical to
+		 * 				the string returned by #TagManager.get_real_path().
+		 * 
+		 * Finds a document whose @real_name matches the given filename.
+		 * 
+		 * Returns:	The matching #Document or #null if no document matched.
+		 */
+		public static unowned Document?	find_by_real_path (string real_name);
+		
+		/**
+		 * get_current:
+		 * 
+		 * Finds the current document.
+		 * 
+		 * Returns: The current #Document or #null if there are no opened
+		 * 			documents.
+		 */
 		public static unowned Document?	get_current ();
-		public static unowned Document?	get_from_page (uint page_num);
-		public int						get_notebook_page ();
-		public unowned Gdk.Color?		get_status_color ();
+		
+		/**
+		 * get_from_notebook_page:
+		 * @page_num:	The notebook page number to search.
+		 * 
+		 * Finds the document for the given notebook page number @page_num.
+		 * 
+		 * Returns:	The corresponding document for the given notebook page
+		 * 			or #null if there was no document at @page_num.
+		 */
+		[CCode (cname = "document_get_from_page")]
+		public static unowned Document?	get_from_notebook_page (uint page_num);
+		
+		/**
+		 * get_from_index:
+		 * @index:	Documents array index.
+		 * 
+		 * Gets the document from the documents array with @index.  Always
+		 * check the returned document is valid.
+		 * 
+		 * Returns: The document with @index or #null if @index is out of range.
+		 */
 		[CCode (cname = "document_index")]
-		public static unowned Document?	get_index (int idx);
-		public static unowned Document	new_file (string? utf8_filename = null, Filetype? ft = null,
-												  string? text = null);
-		public static unowned Document?	open_file (string locale_filename, bool readonly = false,
-												   Filetype? ft = null, string? forced_enc = null);
-		public static void				open_files (GLib.SList filenames, bool readonly = false,
-													Filetype? ft = null, string? forced_enc = null);
-		public bool						reload_file (string? forced_enc = null);
-		public static bool				remove_page (uint page_num);
-		public void						rename_file (string new_filename);
-		public bool						save_file (bool force = false);
-		public bool						save_file_as (string? utf8_fname = null);
-		public void						set_encoding (string new_encoding);
-		public void						set_filetype (Filetype type);
-		public void						set_text_changed (bool changed);
+		public static unowned Document?	get_from_index (int index);
+		
+		/**
+		 * open:
+		 * @locale_filename:	The filename of the document to load, in locale
+		 * 						encoding.
+		 * @read_only:			Whether to open the document in read-only mode.
+		 * @ft:					The filetype for the document or #null to
+		 * 						auto-detect the filetype.
+		 * @forced_enc:			The file encoding to use or #null to auto-detect
+		 * 						the file encoding.
+		 * 
+		 * Opens a new document specified by @locale_filename.  Afterwards,
+		 * the "document-open" signals is emitted for plugins.
+		 * 
+		 * Returns:	The opened document or #null.
+		 */
+		[CCode (cname = "document_open_file")]
+		public static unowned Document?	open (string locale_filename,
+											  bool readonly = false,
+											  Filetype? ft = null, 
+											  string? forced_enc = null);
 	}
 	/* reviewed */
 	[CCode (cname = "documents", array_length_cexpr = "GEANY(documents_array)->len")]
