@@ -801,7 +801,7 @@ namespace Geany {
 		 * Gets the used End of Line characters (LF, CR/LF, CR) in this
 		 * {@link Editor}. The value will be one of "\n", "\r\n" or "\r".
 		 * 
-		 * @see App.default_eol_char
+		 * @see EditorPrefs.get_default_eol_char
 		 */
 		public unowned string eol_char {
 			[CCode (cname = "editor_get_eol_char")] get;
@@ -810,7 +810,7 @@ namespace Geany {
 		/**
 		 * Gets the end of line characters mode in this {@link Editor}.
 		 * 
-		 * @see App.default_eol_char_mode
+		 * @see EditorPrefs.get_default_eol_char_mode
 		 * @see Scintilla.EolMode
 		 */
 		public Scintilla.EolMode eol_char_mode {
@@ -821,7 +821,7 @@ namespace Geany {
 		 * Retrieves the localized name (for displaying) of the used End of
 		 * Line characters (LF, CR/LF, CR) in this {@link Editor}.
 		 * 
-		 * @see App.default_eol_char_name
+		 * @see EditorPrefs.get_default_eol_char_name
 		 */
 		public unowned string eol_char_name {
 			[CCode (cname = "editor_get_eol_char_name")] get;
@@ -837,7 +837,7 @@ namespace Geany {
 		 * reference around if the editor/project settings may have changed,
 		 * or if this function has been called for a different editor.
 		 * 
-		 * @see App.get_indent_prefs
+		 * @see IndentPrefs.get_default
 		 */
 		public unowned IndentPrefs indent_prefs {
 			[CCode (cname = "editor_get_indent_prefs")] get;
