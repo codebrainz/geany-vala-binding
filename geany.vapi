@@ -256,9 +256,9 @@ namespace Geany {
 		 * Gets whether the document has changed since it was last saved.
 		 */
 		public bool has_changed {
-			[CCode (cname = "__geany_vala_plugin_document_get_has_changed")]
+			[CCode (cname = "geany_vala_plugin_document_get_has_changed")]
 			get { return _has_changed; }
-			[CCode (cname = "__geany_vala_plugin_document_set_has_changed")]
+			[CCode (cname = "geany_vala_plugin_document_set_has_changed")]
 			set { set_text_changed (value); }
 		}
 		[CCode (cname = "changed")] bool _has_changed;
@@ -267,7 +267,7 @@ namespace Geany {
 		 * Gets the {@link Editor} associated with the document.
 		 */
 		public Editor editor {
-			[CCode (cname = "__geany_vala_plugin_document_get_editor")]
+			[CCode (cname = "geany_vala_plugin_document_get_editor")]
 			get { return _editor; }
 		}
 		[CCode (cname = "editor")] Editor _editor;
@@ -280,9 +280,9 @@ namespace Geany {
 		 * function.
 		 */
 		public string encoding {
-			[CCode (cname = "__geany_vala_plugin_document_get_encoding")]
+			[CCode (cname = "geany_vala_plugin_document_get_encoding")]
 			get { return _encoding; }
-			[CCode (cname = "__geany_vala_plugin_document_set_encoding")]
+			[CCode (cname = "geany_vala_plugin_document_set_encoding")]
 			set { set_encoding (value); }
 		}
 		[CCode (cname = "encoding")] string _encoding;
@@ -303,7 +303,7 @@ namespace Geany {
 		 * {@link save_as} method.
 		 */
 		public string? file_name {
-			[CCode (cname = "__geany_vala_plugin_document_get_file_name")]
+			[CCode (cname = "geany_vala_plugin_document_get_file_name")]
 			get { return _file_name; }
 		}
 		[CCode (cname = "file_name")] string? _file_name;
@@ -313,9 +313,9 @@ namespace Geany {
 		 * highlighting and tags.
 		 */
 		public Filetype file_type {
-			[CCode (cname = "__geany_vala_plugin_document_get_file_type")]
+			[CCode (cname = "geany_vala_plugin_document_get_file_type")]
 			get { return _file_type; }
-			[CCode (cname = "__geany_vala_plugin_document_set_file_type")]
+			[CCode (cname = "geany_vala_plugin_document_set_file_type")]
 			set { set_filetype (value); }
 		}
 		[CCode (cname = "file_type")] Filetype _file_type;
@@ -324,7 +324,7 @@ namespace Geany {
 		 * Gets whether the file for this document has a Byte Order Mark.
 		 */
 		public bool has_bom {
-			[CCode (cname = "__geany_vala_plugin_document_get_has_bom")]
+			[CCode (cname = "geany_vala_plugin_document_get_has_bom")]
 			get { return _has_bom; }
 		}
 		[CCode (cname = "has_bom")] bool _has_bom;
@@ -336,7 +336,7 @@ namespace Geany {
 		 * and calltips.
 		 */
 		public bool has_tags {
-			[CCode (cname = "__geany_vala_plugin_document_get_has_tags")]
+			[CCode (cname = "geany_vala_plugin_document_get_has_tags")]
 			get { return _has_tags; }
 		}
 		[CCode (cname = "has_tags")] bool _has_tags;
@@ -348,7 +348,7 @@ namespace Geany {
 		 * represents a array index. However, it would need to change this
 		 * get_from_index() too, so wrap it... */
 		public int index {
-			[CCode (cname = "__geany_vala_plugin_document_get_index")]
+			[CCode (cname = "geany_vala_plugin_document_get_index")]
 			get { return _index; }
 		}
 		[CCode (cname = "index")] int _index;
@@ -363,7 +363,7 @@ namespace Geany {
 		 * Gets/sets whether this document is read-only.
 		 */
 		public bool is_read_only {
-			[CCode (cname = "__geany_vala_plugin_document_get_is_read_only")]
+			[CCode (cname = "geany_vala_plugin_document_get_is_read_only")]
 			get { return _is_read_only; }
 		}
 		[CCode (cname = "readonly")] bool _is_read_only;
@@ -377,7 +377,7 @@ namespace Geany {
 		 * (has no file).
 		 */
 		public string? real_path {
-			[CCode (cname = "__geany_vala_plugin_document_get_real_path")]
+			[CCode (cname = "geany_vala_plugin_document_get_real_path")]
 			get { return _real_path; }
 		}
 		[CCode (cname = "real_path")] string? _real_path;
@@ -389,7 +389,7 @@ namespace Geany {
 		 * document.
 		 */
 		public TagManager.WorkObject? tm_file { /* needs better name? */
-			[CCode (cname = "__geany_vala_plugin_document_get_tm_file")]
+			[CCode (cname = "geany_vala_plugin_document_get_tm_file")]
 			get { return _tm_file; }
 		}
 		[CCode (cname = "tm_file")] TagManager.WorkObject? _tm_file;
@@ -1143,7 +1143,7 @@ namespace Geany {
 			public unowned string? version;
 			public unowned string? author;
 			
-			[CCode (cname = "__geany_vala_plugin_SET_INFO")]
+			[CCode (cname = "geany_vala_plugin_SET_INFO")]
 			public void @set (string name, string? description, string? version, string? author)
 			{
 				this.name			= name;
@@ -1174,7 +1174,7 @@ namespace Geany {
 			IS_DOCUMENT_SENSITIVE
 		}
 		
-		[CCode (cname = "__geany_vala_plugin_VERSION_CHECK")]
+		[CCode (cname = "geany_vala_plugin_VERSION_CHECK")]
 		public static int version_check (int abi_version, int api_required) {
 			/* drop-in copy of GEANY_VERSION_CHECK() macro */
 			if (abi_version != ABI_VERSION)
@@ -1249,7 +1249,7 @@ namespace Geany {
 		 * to include the EOL character */
 		[CCode (cname = "sci_get_line")]
 		private string			__get_line_with_eol (int line_num);
-		[CCode (cname = "__geany_vala_plugin_sci_get_line")]
+		[CCode (cname = "geany_vala_plugin_sci_get_line")]
 		public string			get_line (int line_num, bool include_eol = true) {
 			if (include_eol) {
 				return this.__get_line_with_eol (line_num);
@@ -1300,11 +1300,11 @@ namespace Geany {
 		public void				start_undo_action ();
 
 		/* these ones aren't exported in the plugin API or doesn't exist at all */
-		[CCode (cname = "__geany_vala_plugin_sci_get_eol_mode")]
+		[CCode (cname = "geany_vala_plugin_sci_get_eol_mode")]
 		public int get_eol_mode () {
 			return (int)this.send_message (Scintilla.Message.GETEOLMODE);
 		}
-		[CCode (cname = "__geany_vala_plugin_sci_get_eol_char_len")]
+		[CCode (cname = "geany_vala_plugin_sci_get_eol_char_len")]
 		public int get_eol_char_len () {
 			switch (this.get_eol_mode ()) {
 				case EolMode.CRLF:	return 2;
@@ -1676,7 +1676,7 @@ namespace Geany {
 		 * conventions, and because I can't find the right binding for all cases */
 		[CCode (cname = "utils_str_remove_chars")]
 		private unowned string		__str_remove_chars (string str, string chars);
-		[CCode (cname = "__geany_vala_plugin_utils_str_remove_chars")]
+		[CCode (cname = "geany_vala_plugin_utils_str_remove_chars")]
 		public string				str_remove_chars (string str, string chars) {
 			var copy = str;
 			__str_remove_chars (copy, chars);
