@@ -772,6 +772,10 @@ namespace Geany {
 	[Compact]
 	[CCode (cname = "struct GeanyEditor", cprefix = "editor_")]
 	public class Editor {
+		/* Private methods used to implement properties */
+
+		private void set_indent_type (IndentType ind_type);
+		
 		[CCode (cname = "GEANY_WORDCHARS")]
 		public static const string WORD_CHARS;
 		
@@ -898,7 +902,8 @@ namespace Geany {
 		public IndentType indent_type {
 			[CCode (cname = "geany_vala_plugin_editor_get_indent_type")]
 			get { return this.indent_prefs.type; }
-			[CCode (cname = "editor_set_indent_type")] set;
+			[CCode (cname = "geany_vala_plugin_editor_set_indent_type")]
+			set { set_indent_type (value); }
 		}
 		
 		/* Editor Methods */
