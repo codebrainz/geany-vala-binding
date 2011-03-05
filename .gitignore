@@ -1,6 +1,31 @@
-*.c
+# Compiled source
 *.o
 *.so
+*.lo
+*.la
 
-# should the generated documentation be under version control?
-/doc/
+# Vala generates C sources too
+*.c
+
+# Packages
+*.gz
+*.bz2
+*.tar
+
+# Autotools
+/build
+Makefile
+Makefile.in
+/aclocal.m4
+/autom4te.cache
+/config.*
+/configure
+/libtool
+.deps/
+.libs/
+*.stamp
+stamp-*
+
+# Generated doc
+/doc/htmldoc/
+/doc/devhelpdoc/
