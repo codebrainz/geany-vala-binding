@@ -1,5 +1,6 @@
 
-noinst_LTLIBRARIES	= gplugin.la
+noinst_LTLIBRARIES	= gplugin.la	\
+					  signaltest.la
 
 AM_LDFLAGS		= -module -avoid-version -shared
 AM_CFLAGS		= @GTK_CFLAGS@ @GEANY_CFLAGS@
@@ -9,3 +10,6 @@ AM_VALAFLAGS	= --vapidir $(top_builddir)	\
 
 gplugin_la_SOURCES			= gplugin.vala
 gplugin_la_LIBADD			= @GTK_LIBS@ @GEANY_LIBS@
+
+signaltest_la_SOURCES		= signaltest.vala
+signaltest_la_LIBADD		= @GTK_LIBS@ @GEANY_LIBS@
