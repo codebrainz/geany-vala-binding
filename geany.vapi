@@ -1451,15 +1451,85 @@ namespace Geany {
 	/* reviewed */
 	[Compact]
 	public class MainWidgets {
-		public Gtk.MenuShell	editor_menu;
-		public Gtk.Notebook		message_window_notebook;
-		public Gtk.Notebook		notebook;
-		public Gtk.ProgressBar	progressbar;
-		public Gtk.MenuShell	project_menu;
-		public Gtk.Notebook		sidebar_notebook;
-		public Gtk.Toolbar		toolbar;
-		public Gtk.MenuShell	tools_menu;
-		public Gtk.Window		window;
+		
+		/* Main */
+		/** Gets the main window. */
+		[CCode (cname="window")] Gtk.Widget _window;
+		public Gtk.Window window {
+			[CCode (cname="geany_vala_plugin_main_widgets_get_main_window")]
+			get { return _window as Gtk.Window; }
+		}
+		
+		/** Gets the main toolbar. */
+		[CCode (cname="toolbar")] Gtk.Widget _toolbar;
+		public Gtk.Toolbar toolbar {
+			[CCode (cname="geany_vala_plugin_main_widgets_get_toolbar")]
+			get { return _toolbar as Gtk.Toolbar; }
+		}
+		
+		/** 
+		 * Gets the progress bar widget in the statusbar.
+		 * 
+		 * This progress bar can be used to show progress of various 
+		 * actions.
+		 */
+		[CCode (cname="progressbar")] Gtk.Widget _progressbar;
+		public Gtk.ProgressBar	progressbar {
+			[CCode (cname="geany_vala_plugin_main_widgets_get_progressbar")]
+			get { return _progressbar as Gtk.ProgressBar; }
+		}
+		
+		/* Menus */
+		/** Gets the popup editor menu. */
+		[CCode (cname="message_window_notebook")] Gtk.Widget _editor_menu;
+		public Gtk.MenuShell editor_menu {
+			[CCode (cname="geany_vala_plugin_main_widgets_get_editor_menu")]
+			get { return _editor_menu as Gtk.MenuShell; }
+		}
+		
+		/** 
+		 * Gets the Project menu.  
+		 * 
+		 * Plugins modifying the project can add their items to the 
+		 * Project menu.
+		 */
+		[CCode (cname="project_menu")] Gtk.Widget _project_menu;
+		public Gtk.MenuShell project_menu {
+			[CCode (cname="geany_vala_plugin_main_widgets_get_project_menu")]
+			get { return _project_menu as Gtk.MenuShell; }
+		}
+		
+		/**
+		 * Gets the Tools menu.
+		 * 
+		 * Most plugins add menu items to the Tools menu.
+		 */
+		[CCode (cname="tools_menu")] Gtk.Widget _tools_menu;
+		public Gtk.MenuShell tools_menu {
+			[CCode (cname="geany_vala_plugin_main_widgets_get_tools_menu")]
+			get { return _tools_menu as Gtk.MenuShell; }
+		}
+		
+		/* Notebooks */
+		/** Gets the notebook containing the documents. */
+		[CCode (cname="notebook")] Gtk.Widget _documents_notebook;
+		public Gtk.Notebook documents_notebook {
+			get { return _documents_notebook as Gtk.Notebook; }
+		}
+		
+		/** Gets the bottom message window notebook. */
+		[CCode (cname="message_window_notebook")] Gtk.Widget _message_window_notebook;
+		public Gtk.Notebook message_window_notebook {
+			[CCode (cname="geany_vala_plugin_main_widgets_get_message_window_notebook")]
+			get { return _message_window_notebook as Gtk.Notebook; }
+		}
+		
+		/** Gets the sidebar ntoebook. */
+		[CCode (cname="sidebar_notebook")] Gtk.Widget _sidebar_notebook;
+		public Gtk.Notebook sidebar_notebook {
+			[CCode (cname="geany_vala_plugin_main_widgets_get_sidebar_notebook")]
+			get { return _sidebar_notebook as Gtk.Notebook; }
+		}
 	}
 	/* reviewed */
 	[CCode (lower_case_cprefix = "msgwin_", cprefix = "msgwin_")]
@@ -1577,7 +1647,16 @@ namespace Geany {
 		[CCode (cprefix = "SCI_")]
 		public enum Message {
 			GETEOLMODE,
-			LINEDELETE
+			LINEDELETE,
+			GETDOCPOINTER,
+			SETDOCPOINTER,
+			RELEASEDOCUMENT,
+			SETZOOM,
+			GETZOOM,
+			SETHSCROLLBAR,
+			GETHSCROLLBAR,
+			SETVSCROLLBAR,
+			GETVSCROLLBAR
 		}
 		[CCode (cprefix = "SC_EOL_")]
 		public enum EolMode {
